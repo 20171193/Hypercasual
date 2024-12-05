@@ -4,28 +4,12 @@ using UnityEngine;
 using UnityEngine.Pool;
 
 // 오브젝트 풀 매니저
-public class PoolManager : MonoBehaviour
+public class PoolManager : Singleton<PoolManager>
 {
-    private static PoolManager instance;
-    public static PoolManager Instance { get { return instance; } }
-
     /// <summary>
     /// 인스턴스ID, 풀 인스턴스
     /// </summary>
     private Dictionary<int, ObjectPool> poolDic = new Dictionary<int, ObjectPool>();
-
-    private void Awake()
-    {
-        if(instance == null)
-        {
-            instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-    }
 
     public void CreatePool(PooledObject prefab, int size, int capacity)
     {
