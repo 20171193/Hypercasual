@@ -11,7 +11,6 @@ public class ItemController : MonoBehaviour
     private Stack<Item> itemStack;
     public Stack<Item> ItemStack { get { return itemStack; } }
 
-
     private void Awake()
     {
         itemStack = new Stack<Item>();

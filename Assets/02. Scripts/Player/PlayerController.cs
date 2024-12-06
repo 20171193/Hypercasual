@@ -13,6 +13,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private CharacterController controller;
     [SerializeField]
+    private Animator anim;
+    [SerializeField]
     private Joystick joystick;
 
     [SerializeField]    // 클릭 액션
@@ -27,12 +29,30 @@ public class PlayerController : MonoBehaviour
 
     // Movement
     private bool isMoving = false;
+    private bool IsMoving 
+    {
+        set 
+        {
+            isMoving = value;
+            // 애니메이터 업데이트
+            anim.SetBool(paramID_IsMoving, isMoving);
+        } 
+    }
+
     [SerializeField]
     private Vector2 startDragPos;
     [SerializeField]
     private Vector2 curDragPos;
     [SerializeField]
     private Vector2 inputDir;
+
+    // 애니메이터 파라미터 ID
+    private int paramID_IsMoving = -1;
+
+    private void Awake()
+    {
+        paramID_IsMoving = Animator.StringToHash("IsMoving");
+    }
 
     private void OnEnable()
     {
@@ -69,11 +89,11 @@ public class PlayerController : MonoBehaviour
         // 조이스틱 활성화
         joystick.gameObject.SetActive(true);
         joystick.EnableJoystick(startDragPos);
-        isMoving = true;
+        IsMoving = true;
     }
     private void OnEndDrag(InputAction.CallbackContext context)
     {
-        isMoving = false;
+        IsMoving = false;
 
         // 드래그 비활성화 
         dragAction.Disable();
@@ -88,8 +108,6 @@ public class PlayerController : MonoBehaviour
         curDragPos = context.ReadValue<Vector2>();
         // 조이스틱 UI 업데이트
         joystick.UpdateJoystick(curDragPos);
-        // 이동 수행
-        Move();
     }
     
     // 조이스틱 이동
@@ -99,7 +117,10 @@ public class PlayerController : MonoBehaviour
         Vector3 moveDir = new Vector3(joystick.StickDir.x, 0, joystick.StickDir.y);
         // 플레이어 회전
         transform.forward = -moveDir;
+        controller.Move(transform.forward * moveSpeed * Time.deltaTime);
+        Debug.Log(controller.velocity.magnitude);
 
-        controller.Move(-moveDir * moveSpeed * Time.deltaTime);
+        // 애니메이터 세팅
+        anim.SetBool(paramID_IsMoving, true);
     }
 }

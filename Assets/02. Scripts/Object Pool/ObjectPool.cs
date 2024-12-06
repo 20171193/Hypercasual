@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -22,6 +23,30 @@ public class ObjectPool : MonoBehaviour
     [Header("-Debugging")]
     [SerializeField]
     protected Queue<PooledObject> objectPool;
+
+    private void Awake()
+    {
+        objectPool = new Queue<PooledObject>();
+    }
+
+    public void ExtendPool(int capacity)
+    {
+        if (capacity <= this.capacity)
+            return;
+
+        // 용량의 차이만큼 오브젝트 재생성
+        for(int i =0; i<capacity - this.capacity; i++)
+        {
+            PooledObject inst = Instantiate(prefab);
+            inst.gameObject.SetActive(false);
+            inst.Pooler = this;
+            inst.transform.parent = transform;
+            objectPool.Enqueue(inst);
+        }
+
+        // 용량 갱신
+        this.capacity = capacity;
+    }
 
     // 풀 생성
     public void CreatePool(PooledObject prefab, int size, int capacity)

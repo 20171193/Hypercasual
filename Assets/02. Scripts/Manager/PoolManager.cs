@@ -4,29 +4,22 @@ using UnityEngine;
 using UnityEngine.Pool;
 
 // 오브젝트 풀 매니저
-public class PoolManager : MonoBehaviour
+public class PoolManager : Singleton<PoolManager>
 {
-    private static PoolManager instance;
-    public static PoolManager Instance { get { return instance; } }
-
     /// <summary>
     /// 인스턴스ID, 풀 인스턴스
     /// </summary>
     private Dictionary<int, ObjectPool> poolDic = new Dictionary<int, ObjectPool>();
 
-    private void Awake()
+    public void ExtendPool(PooledObject prefab, int capacity)
     {
-        if(instance == null)
-        {
-            instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-    }
+        int prefabID = prefab.GetInstanceID();
+        if (!poolDic.ContainsKey(prefabID))
+            return;
 
+        // 풀 크기 확장
+        poolDic[prefabID].ExtendPool(capacity);
+    }
     public void CreatePool(PooledObject prefab, int size, int capacity)
     {
         // 풀 생성 (각 오브젝트들이 위치하는 부모 오브젝트)
@@ -38,7 +31,6 @@ public class PoolManager : MonoBehaviour
 
         poolDic.Add(prefab.GetInstanceID(), objectPool);
     }
-
     public void DestroyPool(PooledObject prefab)
     {
         ObjectPool objectPool = poolDic[prefab.GetInstanceID()];
@@ -46,7 +38,6 @@ public class PoolManager : MonoBehaviour
 
         poolDic.Remove(prefab.GetInstanceID());
     }
-
     public void ClearPool()
     {
         // 풀 비우기
@@ -57,10 +48,10 @@ public class PoolManager : MonoBehaviour
 
         poolDic.Clear();
     }
-
     public PooledObject GetPool(PooledObject prefab, Vector3 position, Quaternion rotation)
     {
         // 프리팹의 InstanceID로 로딩
         return poolDic[prefab.GetInstanceID()].GetPool(position, rotation);
     }
+
 }
