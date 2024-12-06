@@ -11,6 +11,15 @@ public class PoolManager : Singleton<PoolManager>
     /// </summary>
     private Dictionary<int, ObjectPool> poolDic = new Dictionary<int, ObjectPool>();
 
+    public void ExtendPool(PooledObject prefab, int capacity)
+    {
+        int prefabID = prefab.GetInstanceID();
+        if (!poolDic.ContainsKey(prefabID))
+            return;
+
+        // 풀 크기 확장
+        poolDic[prefabID].ExtendPool(capacity);
+    }
     public void CreatePool(PooledObject prefab, int size, int capacity)
     {
         // 풀 생성 (각 오브젝트들이 위치하는 부모 오브젝트)
@@ -22,7 +31,6 @@ public class PoolManager : Singleton<PoolManager>
 
         poolDic.Add(prefab.GetInstanceID(), objectPool);
     }
-
     public void DestroyPool(PooledObject prefab)
     {
         ObjectPool objectPool = poolDic[prefab.GetInstanceID()];
@@ -30,7 +38,6 @@ public class PoolManager : Singleton<PoolManager>
 
         poolDic.Remove(prefab.GetInstanceID());
     }
-
     public void ClearPool()
     {
         // 풀 비우기
@@ -41,10 +48,10 @@ public class PoolManager : Singleton<PoolManager>
 
         poolDic.Clear();
     }
-
     public PooledObject GetPool(PooledObject prefab, Vector3 position, Quaternion rotation)
     {
         // 프리팹의 InstanceID로 로딩
         return poolDic[prefab.GetInstanceID()].GetPool(position, rotation);
     }
+
 }

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 /// <summary>
@@ -12,14 +13,14 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
 
     protected virtual void Awake()
     {
-        if(instance == null)
+        if (instance == null)
         {
             instance = this as T;
-            DontDestroyOnLoad(gameObject);
+            DontDestroyOnLoad(instance);
         }
         else
         {
-            Destroy(gameObject);
+            Destroy(instance);
         }
     }
 }

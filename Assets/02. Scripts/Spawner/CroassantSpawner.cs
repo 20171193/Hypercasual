@@ -18,6 +18,9 @@ public class CroassantSpawner : PoolSpawner<Item>
     private void Spawn()
     {
         Croassant inst = base.SpawnItem() as Croassant;
+        inst.transform.position = transform.position;
+        inst.transform.rotation = transform.rotation;
+        inst.transform.parent = transform;
         inst.ChangeState(Croassant.State.OnSpawner);
     }
 

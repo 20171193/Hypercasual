@@ -7,18 +7,27 @@ using UnityEngine;
 /// </summary>
 public class PoolSpawner<TObject> : MonoBehaviour where TObject : PooledObject
 {
+    [Header("-Components")]
     [SerializeField]
     protected TObject objectPrefab;
 
-    [Tooltip("아이템 프리팹 인스턴스 ID")]
+    [Space(10)]
+    [Header("-Specs")]
+    [Tooltip("풀 사이즈")]
     [SerializeField]
-    protected int instanceID;
-    public int InstanceID { get { return instanceID; } }
+    private int poolSize;
+    [Tooltip("풀 용량")]
+    [SerializeField]
+    private int poolCapacity;
 
-    private void Awake()
+    //[Space(10)]
+    //[Header("-Ballancing")]
+    //[Tooltip("아이템 프리팹 인스턴스 ID")]
+    private Coroutine initDelay;
+    
+    private void OnEnable()
     {
-        // 오브젝트 풀에 등록
-        instanceID = objectPrefab.GetInstanceID();
+        initDelay = StartCoroutine(InitDelay());
     }
 
     protected virtual PooledObject SpawnItem()
@@ -30,5 +39,12 @@ public class PoolSpawner<TObject> : MonoBehaviour where TObject : PooledObject
             return null;
         }
         return inst;
+    }
+
+    IEnumerator InitDelay()
+    {
+        yield return new WaitForSeconds(0.1f);
+        // 오브젝트 풀 생성요청
+        PoolManager.Instance.CreatePool(objectPrefab, poolSize, poolCapacity);
     }
 }

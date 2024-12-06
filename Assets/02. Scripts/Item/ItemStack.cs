@@ -32,7 +32,7 @@ public class ItemStack : MonoBehaviour
 
     [Header("-Specs")]
     [Tooltip("아이템 스택 타입 x/z평면 or x/y평면")]
-    public StackingType stackType = StackingType.Horizontal;
+    public StackingType stackingType = StackingType.Horizontal;
     [Tooltip("스택 소유자")]
     [SerializeField]
     private StackOwner owner = StackOwner.None;
@@ -86,8 +86,8 @@ public class ItemStack : MonoBehaviour
             itemSize = item.ItemRenderer.bounds.size;
             // 아이템간 간격 할당
             itemSpacing = new Vector3(itemSize.Value.x + rowPadding, 
-                stackType == StackType.Vertical ? itemSize.Value.y + colPadding : 0,        // x/y 평면 기준 스태킹
-                stackType == StackType.Horizontal ? itemSize.Value.z + colPadding : 0);     // x/z 평면 기준 스태킹
+                stackingType == StackingType.Vertical ? itemSize.Value.y + colPadding : 0,        // x/y 평면 기준 스태킹
+                stackingType == StackingType.Horizontal ? itemSize.Value.z + colPadding : 0);     // x/z 평면 기준 스태킹
         }
 
         // 행 처리
@@ -100,8 +100,8 @@ public class ItemStack : MonoBehaviour
         // 아이템 슬롯위치 할당 (로컬)
         // 각 행/열의 첫번째 요소는 패딩을 추가하지 않음.
         itemLocalPos = new Vector3(itemSpacing.x * slotCurRow + (slotCurRow == 0 ? 0 : rowPadding)
-            , stackType == StackType.Vertical ? (itemSpacing.y * slotCurCol + (slotCurCol == 0 ? 0 : colPadding)) : 0
-            , stackType == StackType.Horizontal ? (itemSpacing.z * slotCurCol + (slotCurCol == 0 ? 0 : colPadding)) : 0);
+            , stackingType == StackingType.Vertical ? (itemSpacing.y * slotCurCol + (slotCurCol == 0 ? 0 : colPadding)) : 0
+            , stackingType == StackingType.Horizontal ? (itemSpacing.z * slotCurCol + (slotCurCol == 0 ? 0 : colPadding)) : 0);
 
         slotCurRow++;
         return itemLocalPos;
