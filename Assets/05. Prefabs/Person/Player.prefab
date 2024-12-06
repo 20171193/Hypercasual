@@ -202,7 +202,7 @@ Animator:
   m_GameObject: {fileID: 1479773204135146570}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 6d74239767d4f054783977789d484064, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -470,7 +470,47 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1d8cb027699ec7b478cd3d5c234864e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rigid: {fileID: 0}
+  controller: {fileID: 189317654107446434}
+  anim: {fileID: 4925834204985880383}
+  joystick: {fileID: 0}
+  clickAction:
+    m_Name: Click
+    m_Type: 1
+    m_ExpectedControlType: Button
+    m_Id: 7aef703b-95d7-4751-bbb3-894a9cd28e4e
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: e852d763-15ff-44b1-b8c6-fb324c32c6f5
+      m_Path: <Mouse>/leftButton
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Click
+      m_Flags: 0
+    m_Flags: 0
+  dragAction:
+    m_Name: Drag
+    m_Type: 0
+    m_ExpectedControlType: Vector2
+    m_Id: 31f4fd0e-f0e9-40ae-aae5-a46fccc87c51
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: be5c7270-a08f-4881-a7b9-6cd208be42ca
+      m_Path: <Mouse>/position
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Drag
+      m_Flags: 0
+    m_Flags: 0
+  moveSpeed: 5
+  startDragPos: {x: 0, y: 0}
+  curDragPos: {x: 0, y: 0}
+  inputDir: {x: 0, y: 0}
 --- !u!143 &189317654107446434
 CharacterController:
   m_ObjectHideFlags: 0
@@ -488,7 +528,7 @@ CharacterController:
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Center: {x: 0, y: 1, z: 0}
 --- !u!1 &3712107257958667098
 GameObject:
   m_ObjectHideFlags: 0

@@ -17,7 +17,10 @@ public class Item : PooledObject
     [SerializeField]
     private ItemType itemType;
     public ItemType ItemType { get { return itemType; } }
-    
 
+    [Tooltip("¾ÆÀÌÅÛ ¸ğµ¨ ·»´õ·¯")]
+    [SerializeField]
+    private Renderer itemRenderer;
+    public Renderer ItemRenderer { get { return itemRenderer; } }
 
 }
