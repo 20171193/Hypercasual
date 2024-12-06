@@ -2,19 +2,28 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// 아이템 스택 타입
-/// Horizontal = x/z
-/// Vertical = x/y
-/// </summary>
-public enum StackType
-{
-    Horizontal = 0,
-    Vertical
-}
-
 public class ItemStack : MonoBehaviour
 {
+    /// <summary>
+    /// 아이템 스택 타입
+    /// Horizontal = x/z
+    /// Vertical = x/y
+    /// </summary>
+    public enum StackingType
+    {
+        Horizontal = 0,
+        Vertical
+    }
+
+    // 스택 소유자 타입
+    public enum StackOwner
+    {
+        None = -1,
+        Player,
+        Customer,
+        Basket
+    }
+
     [SerializeField]
     private Item itemTest;
 
@@ -23,7 +32,11 @@ public class ItemStack : MonoBehaviour
 
     [Header("-Specs")]
     [Tooltip("아이템 스택 타입 x/z평면 or x/y평면")]
-    public StackType stackType = StackType.Horizontal;
+    public StackingType stackType = StackingType.Horizontal;
+    [Tooltip("스택 소유자")]
+    [SerializeField]
+    private StackOwner owner = StackOwner.None;
+    public StackOwner Owner {get{return owner;}}    
     [Tooltip("슬롯 열 개수")]
     public int slotMaxRow;
     [Tooltip("슬롯 행 개수")]
@@ -58,7 +71,13 @@ public class ItemStack : MonoBehaviour
         Debug.Log(itemSize.Value);
     }
 
-    private Vector3 GetItemPosition(Item item)
+    // 스택될 월드 좌표 반환
+    public Vector3 GetStackingWorldPosition(Item item)
+    {
+        Vector3 localPosition = GetStackingLocalPosition(item);
+        return transform.position + localPosition;
+    }
+    private Vector3 GetStackingLocalPosition(Item item)
     {
         Vector3 itemLocalPos = Vector3.zero;
         // 최초 할당 시 아이템 크기, 슬롯 위치 할당
@@ -95,7 +114,7 @@ public class ItemStack : MonoBehaviour
 
         // 아이템 위치 설정
         item.transform.parent = transform;
-        item.transform.localPosition = GetItemPosition(item);
+        item.transform.localPosition = GetStackingLocalPosition(item);
         item.transform.forward = transform.forward;
         stack.Push(item);
         return true;
