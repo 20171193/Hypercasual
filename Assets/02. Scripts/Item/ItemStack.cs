@@ -27,14 +27,21 @@ public class ItemStack : MonoBehaviour
     }
 
     [Tooltip("아이템 스택 완료")]
-    public UnityEvent<Item> OnStackedItem;
+    public UnityEvent<Item> OnStackedItem; 
 
     [SerializeField]
     private Item itemTest;
 
+    [Space(10)]
     [Header("-Specs")]
     [Tooltip("아이템 스택 타입 x/z평면 or x/y평면")]
-    public StackStyle stackStyle = StackStyle.Horizontal;
+    [SerializeField]
+    private StackStyle style;
+    public StackStyle Style { get { return style; } }
+    [Tooltip("스택 소유자")]
+    [SerializeField]
+    private StackOwner owner;
+    public StackOwner Onwer {get { return owner; } }
     [Tooltip("최대 스택 개수")]
     [SerializeField]
     private int maxStackCount;
@@ -49,17 +56,16 @@ public class ItemStack : MonoBehaviour
     [Tooltip("아이템 스태킹 속도")]
     public float stackingSpeed;
 
+    [Space(10)]
     [Header("-Ballancing")]
     [SerializeField]
-    private Stack<Item> stack;
-
     private int curStackCount;
-    public int CurStackCount
+    public virtual int CurStackCount
     {
         set 
         {
             curStackCount = value;
-            if (curStackCount == slotMaxRow * slotMaxCol)
+            if (curStackCount >= slotMaxRow * slotMaxCol)
                 isFull = true;
             else
                 isFull = false;
@@ -68,7 +74,7 @@ public class ItemStack : MonoBehaviour
     }
 
     public bool isFull;
-
+    private Stack<Item> stack;
     // 할당한 아이템 크기
     private Vector3? itemSize = null;
     // 아이템 간격
@@ -81,7 +87,7 @@ public class ItemStack : MonoBehaviour
     // 아이템 스택 루틴 : 베지어 곡선
     protected Coroutine stackingRoutine;
 
-    private void Awake()
+    protected virtual void Awake()
     {
         stack = new Stack<Item>();
     }
@@ -105,41 +111,48 @@ public class ItemStack : MonoBehaviour
     }
     protected Vector3 CalculateLocalPosition(Item item)
     {
-        Vector3 itemLocalPos = Vector3.zero;
         // 최초 할당 시 아이템 크기, 슬롯 위치 할당
         if (itemSize == null)
         {
             itemSize = item.ItemRenderer.bounds.size;
             // 아이템간 간격 할당
-            itemSpacing = new Vector3(itemSize.Value.x + rowPadding,
-                stackStyle == StackStyle.Vertical ? itemSize.Value.y + colPadding : 0,        // x/y 평면 기준 스태킹
-                stackStyle == StackStyle.Horizontal ? itemSize.Value.z + colPadding : 0);     // x/z 평면 기준 스태킹
+            itemSpacing = new Vector3(itemSize.Value.x / 2f + rowPadding,
+                style == StackStyle.Vertical ? itemSize.Value.y / 2f + colPadding : 0,        // x/y 평면 기준 스태킹
+                style == StackStyle.Horizontal ? itemSize.Value.z / 2f + colPadding : 0);     // x/z 평면 기준 스태킹
         }
 
         // 아이템 슬롯위치 할당 (로컬)
         // 각 행/열의 첫번째 요소는 패딩을 추가하지 않음.
-        itemLocalPos = new Vector3(itemSpacing.x * slotCurRow + (slotCurRow == 0 ? 0 : rowPadding)
-            , stackStyle == StackStyle.Vertical ? (itemSpacing.y * slotCurCol + (slotCurCol == 0 ? 0 : colPadding)) : 0
-            , stackStyle == StackStyle.Horizontal ? (itemSpacing.z * slotCurCol + (slotCurCol == 0 ? 0 : colPadding)) : 0);
+        Vector3 itemLocalPos = new Vector3(itemSpacing.x * slotCurRow + (slotCurRow == 0 ? 0 : rowPadding)
+            , style == StackStyle.Vertical ? (itemSpacing.y * slotCurCol + (slotCurCol == 0 ? 0 : colPadding)) : 0
+            , style == StackStyle.Horizontal ? (itemSpacing.z * slotCurCol + (slotCurCol == 0 ? 0 : colPadding)) : 0);
 
         return itemLocalPos;
     }
-    public bool PushItem(Item item)
+    public virtual bool PushItem(Item item)
     {
         // 아이템 스택 용량이 다 찬 경우 
-        if (slotMaxRow * slotMaxCol <= stack.Count)
+        if (isFull)
             return false;
 
         Vector3 origin = item.transform.position;
         Vector3 destination = GetStackingWorldPosition(item);
         // 아이템 스태킹 실행
         item.GetItem();
+        CurStackCount++;
         stackingRoutine = StartCoroutine(StackingRoutine(item, origin, destination));
         return true;
     }
-    public Item PopItem()
+    public virtual Item PopItem()
     {
         CurStackCount--;
+        // 스택 슬롯 인덱스처리
+        slotCurRow--;
+        if(slotCurRow < 0)
+        {
+            slotCurRow = slotMaxRow-1;
+            slotCurCol--;
+        }
         return stack.Pop();
     }
     protected virtual IEnumerator StackingRoutine(Item item, Vector3 origin, Vector3 destination)
@@ -171,7 +184,7 @@ public class ItemStack : MonoBehaviour
             slotCurRow = 0;
             slotCurCol++;
         }
-        CurStackCount++;
+        
         OnStackedItem?.Invoke(item);
         yield return null;
     }

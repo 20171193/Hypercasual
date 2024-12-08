@@ -2,17 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CustomerSpawner : MonoBehaviour
+public class CustomerSpawner : PoolSpawner<Customer>
 {
-    // Start is called before the first frame update
-    void Start()
+    [ContextMenu("Spawn")]
+    protected override void Spawn()
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        Customer inst = PoolManager.Instance.GetPool(objectPrefab, Vector3.zero, Quaternion.identity) as Customer;
+        if (inst == null)
+        {
+            Debug.Log("풀에 등록되지 않은 오브젝트 : Customer");
+            return;
+        }
     }
 }
