@@ -37,7 +37,7 @@ public class CroassantSpawner : PoolSpawner<Item>
         spawnRoutine = StartCoroutine(SpawnRoutine());
     }
 
-    // 오브젝트 재스폰 (이벤트 등록 메서드)
+    // 오브젝트 재스폰 (콜백 메서드)
     public void Respawn()
     {
         curSpawnCount--;
@@ -45,19 +45,20 @@ public class CroassantSpawner : PoolSpawner<Item>
             spawnRoutine = StartCoroutine(SpawnRoutine());
     }
     [ContextMenu("Spawn")]
-    protected override void Spawn()
+    public override PooledObject Spawn()
     {
-        Croassant inst = PoolManager.Instance.GetPool(objectPrefab, Vector3.zero, Quaternion.identity) as Croassant;
+        Croassant inst = base.Spawn() as Croassant;
         if (inst == null)
         {
-            Debug.Log("풀에 등록되지 않은 오브젝트 : CroassantSpawner");
-            return;
+            Debug.Log("형변환 오류 : PooledObject to Croassant");
+            return null;
         }
         inst.transform.position = transform.position;
         inst.transform.rotation = transform.rotation;
         // 스폰 시 물리력 적용
         inst.Rigidbody.AddForce(transform.forward * spawnPower, ForceMode.Impulse);
         croassantStack.Push(inst);
+        return inst;
     }
     private IEnumerator SpawnRoutine()
     {

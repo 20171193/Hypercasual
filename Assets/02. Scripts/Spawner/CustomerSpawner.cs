@@ -4,14 +4,10 @@ using UnityEngine;
 
 public class CustomerSpawner : PoolSpawner<Customer>
 {
-    [ContextMenu("Spawn")]
-    protected override void Spawn()
+    public override PooledObject Spawn()
     {
-        Customer inst = PoolManager.Instance.GetPool(objectPrefab, Vector3.zero, Quaternion.identity) as Customer;
-        if (inst == null)
-        {
-            Debug.Log("풀에 등록되지 않은 오브젝트 : Customer");
-            return;
-        }
+        PooledObject inst = base.Spawn();
+        inst.transform.position = transform.position;
+        return inst;
     }
 }

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Oven : MonoBehaviour, IStackInteractable
+public class Oven : Table
 {
     [Header("-Components")]
     [SerializeField]
@@ -10,8 +10,7 @@ public class Oven : MonoBehaviour, IStackInteractable
 
     private Coroutine croassantPopRoutine;
 
-    // IStackInteractable 인터페이스 재정의
-    public bool InteractStack(ItemStack targetStack)
+    public override bool InteractStack(ItemStack targetStack)
     {
         if (targetStack.isFull && targetStack.Onwer != ItemStack.StackOwner.Player)
             return false;

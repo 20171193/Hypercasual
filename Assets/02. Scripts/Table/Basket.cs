@@ -5,92 +5,182 @@ using UnityEngine.EventSystems;
 using UnityEngine.Events;
 using System;
 
-/// <summary>
-/// 빵 주문요청
-/// </summary>
-[Serializable]
-public struct RequestCroassant
-{
-    [Tooltip("주문 요청자")]
-    public Customer customer;
-    [Tooltip("요청 개수")]
-    public int count;
-    public RequestCroassant(Customer customer, int count)
-    {
-        this.customer = customer;
-        this.count = count;
-    }
-}
+// 빵 저장소의 대기열이 비어있을 경우 고객 스폰 요청
 
 /// <summary>
-/// 빵 저장소 테이블
+/// 빵 저장소 테이블, 고객 스폰 및 주문 할당
 /// </summary>
-public class Basket : MonoBehaviour, IStackInteractable
+public class Basket : Table
 {
     [Header("-Components")]
     [SerializeField]
-    private ItemStack itemStack;
+    private ItemStack basketStack;
+
+    [SerializeField]
+    private CustomerSpawner customerSpawner;
+
+    [Header("-Specs")]
+    [Tooltip("주문 대기열 위치")]
+    [SerializeField]
+    private Transform[] waitingLineTransform;
 
     [Header("-Ballancing")]
     [Tooltip("주문요청 큐")]
     [SerializeField]
     private Queue<RequestCroassant> requests;
-
     [Tooltip("현재 진행중인 요청")]
     [SerializeField]
     private RequestCroassant? curRequest = null;
+    [Tooltip("대기열 내 고객 (주문 대기열과 1:1)")]
+    [SerializeField]
+    private Customer[] inCustomers;
     
+    [Tooltip("플레이어 아이템 스택 (트리거 시 할당)")]
+    private ItemStack playerItemStack = null;
+
     private Coroutine croassantPushRoutine;
+    private Coroutine croassantPopRoutine;
+    private Coroutine spawnCustomerRoutine;
 
     private void Awake()
     {
-        itemStack.OnStackedItem.AddListener(ProcessOrder);
+        requests = new Queue<RequestCroassant>();
+
+        // 대기열 개수 만큼 배열할당 
+        inCustomers = new Customer[waitingLineTransform.Length];
+
+        customerSpawner.OnInitSpanwer.AddListener(SpawnCustomer);
+    }
+    private void OnEnable()
+    {
+        // 주문처리 콜백 등록
+        basketStack.OnStackedItem.AddListener(ProcessOrder);
+    }
+    private void OnDisable()
+    {
+        basketStack.OnStackedItem.RemoveListener(ProcessOrder);
     }
 
-    // 주문 처리
-    private void ProcessOrder(Item item)
+    // 고객스폰 요청
+    private void SpawnCustomer()
     {
-        // 현재 처리중인 주문이 없을 경우
-        if (curRequest == null)
+        if (spawnCustomerRoutine == null)
+            spawnCustomerRoutine = StartCoroutine(SpawnCustomerRoutine());
+    }
+
+    // 빈 대기열 찾기
+    private bool GetWaitingLine(out Vector3 waitingLinePosition, out int waitingLineIndex)
+    {
+        waitingLinePosition = Vector3.zero;
+        waitingLineIndex = -1;
+        for (int i = 0; i < inCustomers.Length; i++)
+        {
+            if (inCustomers[i] == null)
+            {
+                // 대기열 위치 할당 (out 반환)
+                waitingLinePosition = waitingLineTransform[i].position;
+                // 대기열 인덱스 할당
+                waitingLineIndex = i;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private IEnumerator SpawnCustomerRoutine()
+    {
+        // 대기열이 가득 찰때까지 스폰
+        while (GetWaitingLine(out Vector3 waitingLinePosition, out int watingLineIndex))
+        {
+            Customer customer = customerSpawner.Spawn() as Customer;
+            // 대기열에 고객 할당
+            inCustomers[watingLineIndex] = customer;
+            // 목적지 할당
+            customer.destination = waitingLinePosition;
+            // 빵 선택 상태로 변경
+            customer.FSM.ChangeState("Selecting");
+            yield return new WaitForSeconds(2f);
+        }
+        spawnCustomerRoutine = null;
+    }
+
+    #region 고객 상호작용
+    // 주문 처리 (OnStackedItem Invoke 시 발생)
+    private void ProcessOrder()
+    {
+        // 주문 요청이 없거나 스택에 빵이 존재하지 않을 경우 return
+        if (requests.Count == 0 || basketStack.CurStackCount == 0)
             return;
 
-        // 주문처리
-
+        // 주문 진행
+        if (croassantPopRoutine == null)
+            croassantPopRoutine = StartCoroutine(CroassantPopRoutine());
     }
-    // 주문 요청 (고객)
+    // 주문 요청 
     public void RequestOrder(Customer customer, int count)
     {
+        // 새 요청 생성
         RequestCroassant request = new RequestCroassant(customer, count);
-
-        if (curRequest == null)
-        { 
-            curRequest = request;
-        }
-        else
-        {
-            requests.Enqueue(request);
-        }
+        // 주문 대기열 큐 할당
+        requests.Enqueue(request);
+        // 주문 처리
+        ProcessOrder();
     }
-    public bool InteractStack(ItemStack targetStack)
+    // 빵 전달 딜레이 루틴 
+    private IEnumerator CroassantPopRoutine()
     {
-        if (itemStack.isFull || targetStack.CurStackCount == 0)
+        while(requests.Count > 0)
+        {
+            // 진행할 요청 할당
+            curRequest = requests.Dequeue();
+            Customer customer = curRequest.Value.customer;
+            int count = curRequest.Value.count;
+            // 0.1초 딜레이 이후 전달
+            while(basketStack.CurStackCount > 0 && count-- > 0)
+            {
+                customer.SendItem(basketStack.PopItem());
+                yield return new WaitForSeconds(0.1f);
+            }
+        }
+        croassantPopRoutine = null;
+    }
+    #endregion
+
+    #region 플레이어 상호작용
+    // 빵 보관 
+    public override bool InteractStack(ItemStack targetStack)
+    {
+        if (targetStack.CurStackCount == 0)
             return false;
+
+        // 현재 스택이 가득찬 상태
+        if (basketStack.isFull)
+        {
+            // 플레이어 스택 대기열에 할당
+            playerItemStack = targetStack;
+            return false;
+        }
 
         if(croassantPushRoutine == null)
             croassantPushRoutine = StartCoroutine(CroassantPushRoutine(targetStack));
 
         return true;
     }
-    // 빵 저장 딜레이 루틴
+
+    // 빵 저장 딜레이 루틴 
     private IEnumerator CroassantPushRoutine(ItemStack targetStack)
     {
-        while (targetStack.CurStackCount > 0 && !itemStack.isFull)
+        // 플레이어 스택 대기열 할당해제
+        playerItemStack = null;
+
+        while (targetStack.CurStackCount > 0 && !basketStack.isFull)
         {
             // 빵 저장소 스택으로 이동
-            itemStack.PushItem(targetStack.PopItem());
+            basketStack.PushItem(targetStack.PopItem());
             yield return new WaitForSeconds(0.1f);
         }
 
         croassantPushRoutine = null;
     }
+    #endregion
 }

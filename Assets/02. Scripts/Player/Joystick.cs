@@ -65,7 +65,6 @@ public class Joystick : MonoBehaviour
         // 벡터 도출 (포인터 - 스틱 베이스)
         Vector3 inputVec = pointerRT.position - baseRT.position;
 
-        Debug.Log(inputVec.magnitude);
         // 최소 이동범위이내 : 정지
         if (inputVec.magnitude < moveThreshold)
             stickDir = Vector3.zero;

@@ -123,8 +123,5 @@ public class PlayerController : MonoBehaviour
         // 플레이어 회전
         transform.forward = -moveDir;
         controller.Move(transform.forward * moveSpeed * Time.deltaTime);
-
-        // 애니메이터 세팅
-        //anim.SetFloat(paramID_MoveSpeed, controller.velocity.sqrMagnitude);
     }
 }

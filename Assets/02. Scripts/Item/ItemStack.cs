@@ -27,7 +27,7 @@ public class ItemStack : MonoBehaviour
     }
 
     [Tooltip("아이템 스택 완료")]
-    public UnityEvent<Item> OnStackedItem; 
+    public UnityEvent OnStackedItem; 
 
     [SerializeField]
     private Item itemTest;
@@ -185,7 +185,7 @@ public class ItemStack : MonoBehaviour
             slotCurCol++;
         }
         
-        OnStackedItem?.Invoke(item);
+        OnStackedItem?.Invoke();
         yield return null;
     }
 }
