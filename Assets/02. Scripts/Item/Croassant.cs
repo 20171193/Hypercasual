@@ -17,11 +17,11 @@ public class Croassant : StackItem
     [SerializeField]
     private CapsuleCollider col;
 
-    public override void GetItem()
+    public override void OnGetItem()
     {
         // 물리 계산, 충돌체 해제
         rigid.isKinematic = true;
         col.enabled = false;
-        base.GetItem();
+        base.OnGetItem();
     }
 }

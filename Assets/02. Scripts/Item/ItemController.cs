@@ -12,5 +12,5 @@ public class ItemController : MonoBehaviour
     [Tooltip("아이템 스택")]
     [SerializeField]
     protected ItemStack itemStack;
-    public ItemStack ItemStack {get { return ItemStack; } }
+    public ItemStack ItemStack {get { return itemStack; } }
 }

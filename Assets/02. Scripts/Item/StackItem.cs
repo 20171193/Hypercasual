@@ -48,7 +48,7 @@ public class StackItem : Item
         curState = state;
     }
 
-    public override void GetItem()
+    public override void OnGetItem()
     {
         ChangeState(State.OnStack);
     }

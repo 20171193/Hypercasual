@@ -24,5 +24,5 @@ public abstract class Item : PooledObject
     protected AcquireType acquireType = AcquireType.Consume;
     public AcquireType GetAcquireType { get { return acquireType; } }
 
-    public abstract void GetItem();
+    public abstract void OnGetItem();
 }

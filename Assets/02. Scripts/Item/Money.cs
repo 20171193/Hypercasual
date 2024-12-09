@@ -7,7 +7,7 @@ using UnityEngine;
 /// </summary>
 public class Money : Item
 {
-    public override void GetItem()
+    public override void OnGetItem()
     {
         // 스코어(돈) 추가
     }

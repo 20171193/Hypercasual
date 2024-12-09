@@ -17,8 +17,6 @@ public abstract class Table : MonoBehaviour
         Both
     }
 
-    private InteractType interactType;
+    protected InteractType interactType;
     public InteractType GetInteractType {get { return interactType; } }
-
-    public abstract bool InteractStack(ItemStack targetStack);
 }

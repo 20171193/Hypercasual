@@ -10,7 +10,7 @@ using System;
 /// <summary>
 /// 빵 저장소 테이블, 고객 스폰 및 주문 할당
 /// </summary>
-public class Basket : Table
+public class Basket : Table, IPlayerInteractable
 {
     [Header("-Components")]
     [SerializeField]
@@ -34,9 +34,12 @@ public class Basket : Table
     [Tooltip("대기열 내 고객 (주문 대기열과 1:1)")]
     [SerializeField]
     private Customer[] inCustomers;
-    
-    [Tooltip("플레이어 아이템 스택 (트리거 시 할당)")]
-    private ItemStack playerItemStack = null;
+    [Tooltip("플레이어 아이템 컨트롤러 (트리거 시 할당)")]
+    [SerializeField]
+    private PlayerItemController playerItemController = null;
+    [Tooltip("플레이어가 대기중인지 확인")]
+    [SerializeField]
+    private bool isInPlayer = false;
 
     private Coroutine croassantPushRoutine;
     private Coroutine croassantPopRoutine;
@@ -64,8 +67,10 @@ public class Basket : Table
     // 고객스폰 요청
     private void SpawnCustomer()
     {
-        if (spawnCustomerRoutine == null)
-            spawnCustomerRoutine = StartCoroutine(SpawnCustomerRoutine());
+        if(spawnCustomerRoutine != null)
+            StopCoroutine(spawnCustomerRoutine);
+
+        spawnCustomerRoutine = StartCoroutine(SpawnCustomerRoutine());
     }
 
     // 빈 대기열 찾기
@@ -99,7 +104,7 @@ public class Basket : Table
             customer.destination = waitingLinePosition;
             // 빵 선택 상태로 변경
             customer.FSM.ChangeState("Selecting");
-            yield return new WaitForSeconds(2f);
+            yield return new WaitForSeconds(1f);
         }
         spawnCustomerRoutine = null;
     }
@@ -111,6 +116,10 @@ public class Basket : Table
         // 주문 요청이 없거나 스택에 빵이 존재하지 않을 경우 return
         if (requests.Count == 0 || basketStack.CurStackCount == 0)
             return;
+
+        // 플레이어가 대기중일 경우 빵 저장
+        if (isInPlayer && playerItemController != null)
+            croassantPushRoutine = StartCoroutine(CroassantPushRoutine(playerItemController.ItemStack));
 
         // 주문 진행
         if (croassantPopRoutine == null)
@@ -132,49 +141,64 @@ public class Basket : Table
         while(requests.Count > 0)
         {
             // 진행할 요청 할당
-            curRequest = requests.Dequeue();
+            curRequest = requests.Peek();
             Customer customer = curRequest.Value.customer;
             int count = curRequest.Value.count;
             // 0.1초 딜레이 이후 전달
             while(basketStack.CurStackCount > 0 && count-- > 0)
             {
+                Debug.Log("빵전달");
                 customer.SendItem(basketStack.PopItem());
                 yield return new WaitForSeconds(0.1f);
             }
+
+            // 주문요청이 모두 처리된 경우
+            //if(count == 0)
+            //    SpawnCustomer();
         }
+
         croassantPopRoutine = null;
     }
     #endregion
 
     #region 플레이어 상호작용
     // 빵 보관 
-    public override bool InteractStack(ItemStack targetStack)
+    public void EnterPlayer(PlayerItemController targetController)
     {
-        if (targetStack.CurStackCount == 0)
-            return false;
+        if (targetController.ItemStack.CurStackCount == 0)
+            return;
 
+        isInPlayer = true;
         // 현재 스택이 가득찬 상태
         if (basketStack.isFull)
         {
-            // 플레이어 스택 대기열에 할당
-            playerItemStack = targetStack;
-            return false;
+            // 플레이어 컨트롤러 대기열에 할당
+            playerItemController = targetController;
+            return;
         }
 
-        if(croassantPushRoutine == null)
-            croassantPushRoutine = StartCoroutine(CroassantPushRoutine(targetStack));
+        if (croassantPushRoutine != null)
+            StopCoroutine(croassantPushRoutine);
 
-        return true;
+        croassantPushRoutine = StartCoroutine(CroassantPushRoutine(targetController.ItemStack));
     }
-
+    public void ExitPlayer()
+    {
+        isInPlayer = false;
+    }
     // 빵 저장 딜레이 루틴 
     private IEnumerator CroassantPushRoutine(ItemStack targetStack)
     {
         // 플레이어 스택 대기열 할당해제
-        playerItemStack = null;
-
         while (targetStack.CurStackCount > 0 && !basketStack.isFull)
         {
+            // 플레이어가 탈출한 경우 루틴 탈출
+            if (!isInPlayer)
+            {
+                croassantPushRoutine = null;
+                yield break;
+            }
+
             // 빵 저장소 스택으로 이동
             basketStack.PushItem(targetStack.PopItem());
             yield return new WaitForSeconds(0.1f);

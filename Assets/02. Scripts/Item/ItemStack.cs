@@ -16,6 +16,7 @@ public class ItemStack : MonoBehaviour
         Customer,
         Table
     }
+
     /// <summary>
     /// Horizontal : x/z 평면 스택 | 
     /// Vertical : x/y 평면 스택
@@ -137,8 +138,10 @@ public class ItemStack : MonoBehaviour
 
         Vector3 origin = item.transform.position;
         Vector3 destination = GetStackingWorldPosition(item);
+        
+        item.OnGetItem();
         // 아이템 스태킹 실행
-        item.GetItem();
+        stack.Push(item);
         CurStackCount++;
         stackingRoutine = StartCoroutine(StackingRoutine(item, origin, destination));
         return true;
@@ -175,7 +178,6 @@ public class ItemStack : MonoBehaviour
         item.transform.forward = transform.forward;
         // 루틴이후 목적지 재설정(루틴 간 위치 변경고려)
         item.transform.localPosition = CalculateLocalPosition(item);
-        stack.Push(item);
 
         // 슬롯 인덱스처리
         slotCurRow++;

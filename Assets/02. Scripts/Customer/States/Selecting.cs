@@ -37,8 +37,8 @@ public class Selecting : CustomerState
         owner.Agent.isStopped = true;
         owner.Agent.transform.position = owner.destination;
 
-        // 户 焊包家 规氢 雀傈
-        owner.transform.forward = OrderManager.Instance.basket.transform.position;
+        // 户 焊包家 规氢栏肺 雀傈
+        owner.transform.forward = (OrderManager.Instance.basket.transform.position - owner.transform.position).normalized;
 
         // 户 林巩夸没
         OrderManager.Instance.basket.RequestOrder(owner, owner.OwnOrder.orderCount);

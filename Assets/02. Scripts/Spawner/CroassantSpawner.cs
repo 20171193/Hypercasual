@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 /// <summary>
 /// 크로아상 스포너
@@ -24,6 +25,9 @@ public class CroassantSpawner : PoolSpawner<Item>
     [SerializeField]
     private Stack<Croassant> croassantStack;
     public Stack<Croassant> CroassantStack { get { return croassantStack; } }
+
+    [Tooltip("크로아상 스폰 시 Invoke")]
+    public UnityEvent OnSpawnCroassant; 
 
     private void Awake()
     {
@@ -58,6 +62,7 @@ public class CroassantSpawner : PoolSpawner<Item>
         // 스폰 시 물리력 적용
         inst.Rigidbody.AddForce(transform.forward * spawnPower, ForceMode.Impulse);
         croassantStack.Push(inst);
+        OnSpawnCroassant?.Invoke();
         return inst;
     }
     private IEnumerator SpawnRoutine()

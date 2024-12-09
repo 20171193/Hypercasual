@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Oven : Table
+public class Oven : Table, IPlayerInteractable
 {
     [Header("-Components")]
     [SerializeField]
@@ -10,15 +10,53 @@ public class Oven : Table
 
     private Coroutine croassantPopRoutine;
 
-    public override bool InteractStack(ItemStack targetStack)
+    [Header("-Ballancing")]
+    [Tooltip("플레이어가 대기중인지 확인")]
+    [SerializeField]
+    private bool isInPlayer = false;
+    private PlayerItemController playerItemController = null;
+
+    private void Awake()
     {
-        if (targetStack.isFull && targetStack.Onwer != ItemStack.StackOwner.Player)
-            return false;
+        interactType = InteractType.Player;
+    }
+
+    private void OnEnable()
+    {
+        // 크로아상 스폰 콜백 등록
+        spawner.OnSpawnCroassant.AddListener(SendCroassant);
+    }
+    private void OnDisable()
+    {
+        // 크로아상 스폰 콜백 등록
+        spawner.OnSpawnCroassant.RemoveListener(SendCroassant);
+    }
+
+    // 크로아상이 스폰된 경우 콜백 (플레이어가 대기중인 경우 전달 용도)
+    private void SendCroassant()
+    {
+        // 플레이어가 대기중이 아닐 경우
+        if (!isInPlayer || playerItemController == null)
+            return;
 
         if (croassantPopRoutine == null)
-            croassantPopRoutine = StartCoroutine(CroassantPopRoutine(targetStack));
+            croassantPopRoutine = StartCoroutine(CroassantPopRoutine(playerItemController.ItemStack));
+    }
 
-        return true;
+    public void EnterPlayer(PlayerItemController targetController)
+    {
+        if (targetController.ItemStack.isFull)
+            return;
+
+        isInPlayer = true;
+        playerItemController = targetController;
+
+        if (croassantPopRoutine == null)
+            croassantPopRoutine = StartCoroutine(CroassantPopRoutine(targetController.ItemStack));
+    }
+    public void ExitPlayer()
+    {
+        isInPlayer = false;
     }
 
     // 빵 습득 딜레이 루틴

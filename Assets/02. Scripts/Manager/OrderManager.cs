@@ -81,4 +81,18 @@ public class OrderManager : Singleton<OrderManager>
                 return null;
         }
     }
+
+    /// <summary>
+    /// 주문 반환
+    /// </summary>
+    public CustomerOrder GetOrder()
+    {
+        int count = UnityEngine.Random.Range(1, 4);
+
+        // 주문개수가 1개라면 먹고가기
+        if (count == 1)
+            return new CustomerOrder(OrderType.DineIn, count);
+        else
+            return new CustomerOrder(OrderType.TakeOut, count);
+    }
 }

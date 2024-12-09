@@ -28,6 +28,7 @@ public class Customer : PooledObject
     [SerializeField]
     public Vector3 destination;
 
+    [SerializeField]
     private CustomerOrder ownOrder;
     public CustomerOrder OwnOrder { get { return ownOrder; } }  
 
@@ -39,6 +40,11 @@ public class Customer : PooledObject
 
     private int paramID_IsStacking = -1;
     public int ParamID_IsStacking { get { return paramID_IsStacking; } }
+
+    // 현재 대기열 순서
+    public int orderTurn = -1;
+
+    private string CurState => fsm.CurState;
 
     private void Awake()
     {
@@ -53,29 +59,46 @@ public class Customer : PooledObject
         paramID_IsMoving = Animator.StringToHash("IsMoving");
         paramID_IsStacking = Animator.StringToHash("IsStacking");
     }
+
     private void OnEnable()
     {
-        
+        ownOrder = OrderManager.Instance.GetOrder();
     }
+
+    private void OnDisable()
+    {
+        orderTurn = -1;
+    }
+
     private void Update()
     {
         fsm.Update();
     }
 
-
     // 아이템 전달 : 타 객체 호출 (플레이어, 테이블)
-    public void SendItem(Item croassant)
+    public void SendItem(Item item)
     {
-        itemController.ItemStack.PushItem(croassant);
-
-        // 모든 아이템 전달이 완료된 경우
-        if (itemController.ItemStack.isFull)
+        itemController.ItemStack.PushItem(item);
+        
+        switch(CurState)
         {
-            // 주문 타입이 포장일 경우 Packaging 상태로 전이 
-            if (ownOrder.orderType == OrderType.TakeOut)
-            {
-                fsm.ChangeState("Packaging");
-            }
+            // 빵 전달 
+            case "Selecting":
+                // 모든 아이템 전달이 완료된 경우
+                if (itemController.ItemStack.CurStackCount == ownOrder.orderCount)
+                {
+                    // 주문 타입이 포장일 경우 Packaging 상태로 전이 
+                    if (ownOrder.orderType == OrderType.TakeOut)
+                    {
+                        // 목적지 설정 : 카운터
+                        destination = OrderManager.Instance.counter.GetWatingLine(this);
+                        fsm.ChangeState("Packaging");
+                    }
+                }
+                break;
+            // 포장용기 전달
+            case "Packaging":
+                break;
         }
     }
 }

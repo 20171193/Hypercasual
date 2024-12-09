@@ -97,6 +97,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2076795426905991682}
   - component: {fileID: 1970600893940125163}
+  - component: {fileID: -717780241076670325}
   m_Layer: 0
   m_Name: PaperBag
   m_TagString: Untagged
@@ -112,8 +113,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1700551702158209208}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.48663774, y: 0.5, z: 0.075740576}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.8, y: 0.8, z: 0.8}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2489888968875821011}
@@ -131,7 +132,7 @@ Animator:
   m_GameObject: {fileID: 1700551702158209208}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 3ce7c341210860f4ea9d2bf8b46d3737, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -141,6 +142,22 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &-717780241076670325
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1700551702158209208}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5ba039f30d9cbda4dbe1e1209cd086b5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pooler: {fileID: 0}
+  itemRenderer: {fileID: 1006911246695960763}
+  acquireType: 0
+  anim: {fileID: 1970600893940125163}
 --- !u!1 &2995906202456965188
 GameObject:
   m_ObjectHideFlags: 0
