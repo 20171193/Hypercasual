@@ -98,6 +98,8 @@ public class Customer : PooledObject
                 break;
             // 포장용기 전달
             case "Packaging":
+
+                //fsm.ChangeState()
                 break;
         }
     }

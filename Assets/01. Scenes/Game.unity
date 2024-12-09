@@ -1316,6 +1316,7 @@ GameObject:
   m_Component:
   - component: {fileID: 593861169}
   - component: {fileID: 593861170}
+  - component: {fileID: 593861171}
   m_Layer: 0
   m_Name: Table_Counter
   m_TagString: Untagged
@@ -1362,6 +1363,19 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   isInPlayer: 0
+--- !u!65 &593861171
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 593861168}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 3.5, y: 0.8, z: 1.5}
+  m_Center: {x: 0, y: 0.4546324, z: 0}
 --- !u!1 &600264435
 GameObject:
   m_ObjectHideFlags: 0

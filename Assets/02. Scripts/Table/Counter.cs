@@ -13,6 +13,9 @@ public class Counter : Table, IPlayerInteractable
     [Tooltip("포장속도 적용")]
     [SerializeField]
     private float packagingSpeed;
+    [Tooltip("돈 아이템 스택")]
+    [SerializeField]
+    private ItemStack moneyStack;
 
     [Space(10)]
     [Header("-Specs")]
@@ -67,8 +70,12 @@ public class Counter : Table, IPlayerInteractable
     public Vector3 GetWatingLine(int order)
     {
         return watingLineTr.position + (watingLineTr.forward * waitingLineSpacing * (order - 1));
+    }   
+    // 돈 지불
+    public void PayMoney(int count)
+    {
+
     }
-   
     #endregion
 
     #region 플레이어 상호작용

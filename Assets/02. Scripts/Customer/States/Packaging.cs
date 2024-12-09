@@ -51,6 +51,8 @@ public class Packaging : CustomerState
         // 애니메이터 업데이트
         owner.Anim.SetBool(owner.ParamID_IsMoving, false);
 
+        // 방향 할당
+        owner.transform.forward = (OrderManager.Instance.counter.transform.position - owner.transform.position).normalized;
         // 패키징할 순서일 경우 패키징 요청
         if (owner.orderTurn == 0)
         {

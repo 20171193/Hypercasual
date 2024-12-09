@@ -34,6 +34,7 @@ public class Basket : Table, IPlayerInteractable
     [Tooltip("대기열 내 고객 (주문 대기열과 1:1)")]
     [SerializeField]
     private Customer[] inCustomers;
+    
     [Tooltip("플레이어 아이템 컨트롤러 (트리거 시 할당)")]
     [SerializeField]
     private PlayerItemController playerItemController = null;
@@ -102,6 +103,8 @@ public class Basket : Table, IPlayerInteractable
             inCustomers[watingLineIndex] = customer;
             // 목적지 할당
             customer.destination = waitingLinePosition;
+            // 대기열 인덱스 할당
+            customer.orderTurn = watingLineIndex;
             // 빵 선택 상태로 변경
             customer.FSM.ChangeState("Selecting");
             yield return new WaitForSeconds(1f);
@@ -141,20 +144,23 @@ public class Basket : Table, IPlayerInteractable
         while(requests.Count > 0)
         {
             // 진행할 요청 할당
-            curRequest = requests.Peek();
+            curRequest = requests.Dequeue();
             Customer customer = curRequest.Value.customer;
             int count = curRequest.Value.count;
             // 0.1초 딜레이 이후 전달
             while(basketStack.CurStackCount > 0 && count-- > 0)
             {
-                Debug.Log("빵전달");
+                // 주문요청이 모두 처리된 경우
+                if (count == 0)
+                {
+                    inCustomers[customer.orderTurn] = null;
+                    // 새 고객 생성
+                    SpawnCustomer();
+                }
+
                 customer.SendItem(basketStack.PopItem());
                 yield return new WaitForSeconds(0.1f);
             }
-
-            // 주문요청이 모두 처리된 경우
-            //if(count == 0)
-            //    SpawnCustomer();
         }
 
         croassantPopRoutine = null;
