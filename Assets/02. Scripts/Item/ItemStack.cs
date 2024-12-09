@@ -30,9 +30,6 @@ public class ItemStack : MonoBehaviour
     [Tooltip("아이템 스택 완료")]
     public UnityEvent OnStackedItem; 
 
-    [SerializeField]
-    private Item itemTest;
-
     [Space(10)]
     [Header("-Specs")]
     [Tooltip("아이템 스택 타입 x/z평면 or x/y평면")]
@@ -93,24 +90,13 @@ public class ItemStack : MonoBehaviour
         stack = new Stack<Item>();
     }
 
-    [ContextMenu("TestItem")]
-    public void TestItem()
-    {
-        if (itemTest == null)
-            return;
-        Item inst = Instantiate(itemTest);
-
-        PushItem(inst);
-        Debug.Log(itemSize.Value);
-    }
-
     // 스택될 월드 좌표 반환
     public Vector3 GetStackingWorldPosition(Item item)
     {
         Vector3 localPosition = CalculateLocalPosition(item);
         return transform.position + localPosition;
     }
-    protected Vector3 CalculateLocalPosition(Item item)
+    protected virtual Vector3 CalculateLocalPosition(Item item)
     {
         // 최초 할당 시 아이템 크기, 슬롯 위치 할당
         if (itemSize == null)

@@ -15,7 +15,7 @@ public class Counter : Table, IPlayerInteractable
     private float packagingSpeed;
     [Tooltip("돈 아이템 스택")]
     [SerializeField]
-    private ItemStack moneyStack;
+    private MoneyStack moneyStack;
 
     [Space(10)]
     [Header("-Specs")]
@@ -74,7 +74,7 @@ public class Counter : Table, IPlayerInteractable
     // 돈 지불
     public void PayMoney(int count)
     {
-
+        moneyStack.SpawnMoney(count);
     }
     #endregion
 
@@ -113,7 +113,7 @@ public class Counter : Table, IPlayerInteractable
 
         // 주문완료 처리
         // 포장용지 전달
-        waitingCustomerQueue.Dequeue().ItemController.ItemStack.PushItem(paperBag);
+        waitingCustomerQueue.Dequeue().SendItem(paperBag);
         OnProcessedOrder?.Invoke();
     }
     private IEnumerator BazierCurve(Transform targetTransform, Vector3 destination)
