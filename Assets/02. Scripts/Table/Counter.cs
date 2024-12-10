@@ -51,8 +51,7 @@ public class Counter : Table, IPlayerInteractable
         if (!isInPlayer)
             return;
 
-        if(packagingRoutine == null)
-            packagingRoutine = StartCoroutine(PackagingDelay());
+        packagingRoutine = StartCoroutine(PackagingDelay());
     }
     #endregion
 
@@ -69,7 +68,7 @@ public class Counter : Table, IPlayerInteractable
     // 줄당김 (카운터 -> 카운터) 
     public Vector3 GetWatingLine(int order)
     {
-        return watingLineTr.position + (watingLineTr.forward * waitingLineSpacing * (order - 1));
+        return watingLineTr.position + (watingLineTr.forward * waitingLineSpacing * (order));
     }   
     // 돈 지불
     public void PayMoney(int count)
@@ -114,6 +113,9 @@ public class Counter : Table, IPlayerInteractable
         // 주문완료 처리
         // 포장용지 전달
         waitingCustomerQueue.Dequeue().SendItem(paperBag);
+
+        // 고객이 떠날때까지 딜레이
+        yield return new WaitForSeconds(1.5f);
         OnProcessedOrder?.Invoke();
     }
     private IEnumerator BazierCurve(Transform targetTransform, Vector3 destination)

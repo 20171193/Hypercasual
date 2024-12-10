@@ -21,7 +21,7 @@ public class Packaging : CustomerState
         owner.Anim.SetBool(owner.ParamID_IsMoving, true);
 
         // 대기열에 등록된 경우 이벤트 등록 (줄당김)
-        if (owner.orderTurn > 1)
+        if (owner.orderTurn > 0)
             OrderManager.Instance.counter.OnProcessedOrder.AddListener(ShiftLine);
     }
 
@@ -56,16 +56,19 @@ public class Packaging : CustomerState
         // 패키징할 순서일 경우 패키징 요청
         if (owner.orderTurn == 0)
         {
+            Debug.Log("패키징 요청");
             OrderManager.Instance.counter.ProcessOrder();
         }
     }
 
     private IEnumerator CheckDestinationRoutine()
     {
+        // 목적지까지 도착 확인
         while ((owner.destination - owner.transform.position).sqrMagnitude > 0.5f)
         {
             yield return new WaitForSeconds(0.2f);
         }
+
         // 목적지에 도달한 경우
         Arrived();
     }

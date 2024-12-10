@@ -18,4 +18,27 @@ public static class Extension
         yield return new WaitForSeconds(delayTime);
         action?.Invoke();
     }
+
+    /// <summary>
+    /// 베지어 곡선 
+    /// </summary>
+    /// <param name="targetTransform"> 이동할 트랜스폼 (시작위치 설정 및 이동) </param>
+    /// <param name="destination"> 목적지 </param>
+    /// <param name="speed"> 이동 속도 </param>
+    /// <returns></returns>
+    public static IEnumerator BazierCurve(Transform targetTransform, Vector3 destination, float speed)
+    {
+        Vector3 startPos = targetTransform.position;
+        Vector3 midPos = Vector3.Lerp(startPos, destination, 0.5f) + Vector3.up * 3f;
+        float rate = 0f;
+        while (rate < 1f)
+        {
+            Vector3 p1 = Vector3.Lerp(startPos, midPos, rate);
+            Vector3 p2 = Vector3.Lerp(midPos, destination, rate);
+            targetTransform.position = Vector3.Lerp(p1, p2, rate);
+            rate += Time.deltaTime * speed; // 습득 속도 적용
+            yield return null;
+        }
+        targetTransform.position = destination;
+    }
 }

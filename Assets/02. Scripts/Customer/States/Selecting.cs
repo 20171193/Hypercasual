@@ -16,10 +16,15 @@ public class Selecting : CustomerState
     // 목적지 확인 코루틴
     private Coroutine checkDestinationRoutine;
 
+    // 경유지 할당
+    private Vector3 transitPos;
+
     public override void Enter()
     {
+        transitPos = OrderManager.Instance.basketTransitTr.position;
+
         owner.Agent.isStopped = false;
-        owner.Agent.destination = owner.destination;
+        owner.Agent.destination = transitPos;
         checkDestinationRoutine = owner.StartCoroutine(CheckDestinationRoutine());
         // 애니메이터 업데이트
         owner.Anim.SetBool(owner.ParamID_IsMoving, true);
@@ -47,10 +52,20 @@ public class Selecting : CustomerState
     // 목적지 확인 루틴
     private IEnumerator CheckDestinationRoutine()
     {
-        while((owner.destination - owner.transform.position).sqrMagnitude > 0.5f)
+        // 경유지까지 도착 확인
+        while((transitPos - owner.transform.position).sqrMagnitude > 0.5f)
         {
             yield return new WaitForSeconds(0.2f);
         }
+
+        owner.Agent.destination = owner.destination;
+
+        // 목적지까지 도착 확인
+        while ((owner.destination - owner.transform.position).sqrMagnitude > 0.5f)
+        {
+            yield return new WaitForSeconds(0.2f);
+        }
+
         // 목적지에 도달한 경우
         Arrived();
     }

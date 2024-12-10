@@ -128,12 +128,13 @@ public class MoneyStack : MonoBehaviour, IPlayerInteractable
         while(moneyStack.Count > 0)
         {
             Money money = moneyStack.Pop();
-            yield return BazierCurve(money.transform, playerItemController.transform.position);
-
+            // 베지어 곡선 적용
+            StartCoroutine(Extension.BazierCurve(money.transform, playerItemController.transform.position, itemGetSpeed));
             // 돈 아이템 습득
             ScoreManager.Instance.GetMoney(1);
             // 돈 아이템 비활성화
             money.Release();
+            yield return new WaitForSeconds(itemGetTime);
         }
     }
 

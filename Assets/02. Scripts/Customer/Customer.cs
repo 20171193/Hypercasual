@@ -25,8 +25,10 @@ public class Customer : PooledObject
     public StateMachine<Customer> FSM { get { return fsm; } }
 
     [Header("-Ballancing")]
-    [SerializeField]
     public Vector3 destination;
+
+    [SerializeField]
+    private Vector3 spawnPosition; 
 
     [SerializeField]
     private CustomerOrder ownOrder;
@@ -44,7 +46,7 @@ public class Customer : PooledObject
     // 현재 대기열 순서
     public int orderTurn = -1;
 
-    private string CurState => fsm.CurState;
+    public string CurState;
 
     private void Awake()
     {
@@ -54,24 +56,29 @@ public class Customer : PooledObject
         fsm.AddState("Packaging", new Packaging(this));
         fsm.AddState("DineIn", new DineIn(this));
         fsm.AddState("SuccessOrder", new SuccessOrder(this));
-        fsm.Init("Pooled");
-
+        
         paramID_IsMoving = Animator.StringToHash("IsMoving");
         paramID_IsStacking = Animator.StringToHash("IsStacking");
     }
 
     private void OnEnable()
     {
+        fsm.Init("Pooled");
         ownOrder = OrderManager.Instance.GetOrder();
     }
 
     private void OnDisable()
     {
         orderTurn = -1;
+
+        // 애니메이터 초기화
+        anim.SetBool(paramID_IsStacking, false);
+        anim.SetBool(paramID_IsMoving, false);
     }
 
     private void Update()
     {
+        CurState = fsm.CurState;
         fsm.Update();
     }
 
@@ -94,12 +101,21 @@ public class Customer : PooledObject
                         destination = OrderManager.Instance.counter.GetWatingLine(this);
                         fsm.ChangeState("Packaging");
                     }
+                    // 주문 타입이 매장일 경우 DineIn 상태로 전이
+                    else if(ownOrder.orderType == OrderType.DineIn)
+                    {
+                        //destination = OrderManager.Instance.dineIn.GetWaitingLine(this);
+                    }
                 }
                 break;
             // 포장용기 전달
             case "Packaging":
                 OrderManager.Instance.counter.PayMoney(ownOrder.orderCount * 5);
-                //fsm.ChangeState()
+
+                // 목적지 설정 : 출입구
+                destination = OrderManager.Instance.entranceTr.position;
+                // SuccessOrder 상태 전이 -> Release
+                fsm.ChangeState("SuccessOrder");
                 break;
         }
     }

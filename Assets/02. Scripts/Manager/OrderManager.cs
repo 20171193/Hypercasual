@@ -46,12 +46,18 @@ public struct CustomerOrder
 public class OrderManager : Singleton<OrderManager>
 {
     [Header("테이블 객체 할당")]
-    [SerializeField]
     public Basket basket;
-    [SerializeField]
     public Oven oven;
-    [SerializeField]
     public Counter counter;
+    public DineInTable dineIn;
+
+    [Space(10)]
+    [Header("출입구 할당")]
+    public Transform entranceTr;
+    [Header("빵 보관소 경유지 할당")]
+    public Transform basketTransitTr;
+    [Header("카운터 경유지 할당")]
+    public Transform counterTransitTr;
     /// <summary>
     /// 테이블 타입
     /// </summary>
