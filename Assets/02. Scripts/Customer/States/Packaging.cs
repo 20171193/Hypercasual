@@ -42,6 +42,10 @@ public class Packaging : CustomerState
         // 이동
         owner.Agent.isStopped = false;
         owner.Agent.destination = owner.destination;
+
+        // 애니메이터 업데이트
+        owner.Anim.SetBool(owner.ParamID_IsMoving, true);
+
         checkDestinationRoutine = owner.StartCoroutine(CheckDestinationRoutine());
     }
 
@@ -50,14 +54,13 @@ public class Packaging : CustomerState
         owner.Agent.isStopped = true;
         // 애니메이터 업데이트
         owner.Anim.SetBool(owner.ParamID_IsMoving, false);
-
         // 방향 할당
         owner.transform.forward = (OrderManager.Instance.counter.transform.position - owner.transform.position).normalized;
         // 패키징할 순서일 경우 패키징 요청
         if (owner.orderTurn == 0)
         {
             Debug.Log("패키징 요청");
-            OrderManager.Instance.counter.ProcessOrder();
+            OrderManager.Instance.counter.RequestOrder(owner);
         }
     }
 

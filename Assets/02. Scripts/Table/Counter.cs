@@ -21,12 +21,16 @@ public class Counter : Table, IPlayerInteractable
     [Header("-Specs")]
     [Tooltip("대기열 기준 트랜스폼 (해당 트랜스폼 기준 z열)")]
     [SerializeField]
-    private Transform watingLineTr;
+    private Transform waitingLineTr;
     [Tooltip("대기열 줄 간격")]
     [SerializeField]
     private float waitingLineSpacing;
 
     private Queue<Customer> waitingCustomerQueue;
+
+    // 1순위 고객 할당
+    private Customer firstOrderCustomer = null;
+
     // 주문처리 완료 후 Invoke
     public UnityEvent OnProcessedOrder;
 
@@ -47,15 +51,32 @@ public class Counter : Table, IPlayerInteractable
     // 주문 처리
     public void ProcessOrder()
     {
-        // 플레이어가 없을 경우
-        if (!isInPlayer)
+        // 플레이어나 고객이 존재하지 않을 경우
+        if (!isInPlayer || firstOrderCustomer == null)
             return;
+
+        if (packagingRoutine != null)
+            StopCoroutine(packagingRoutine);
 
         packagingRoutine = StartCoroutine(PackagingDelay());
     }
     #endregion
 
     #region 고객 상호작용
+
+    // 주문 요청
+    public void RequestOrder(Customer customer)
+    {
+        // 우선순위에 맞지 않는 요청은 거부
+        if (waitingCustomerQueue.Peek() != customer)
+            return;
+
+        firstOrderCustomer = customer;
+
+        // 플레이어가 존재할 경우 주문 처리
+        if (isInPlayer)
+            ProcessOrder();
+    }
     // 주문 대기열 좌표 반환 (고객 요청 : 빵 저장소 -> 카운터)
     public Vector3 GetWatingLine(Customer customer)
     {
@@ -63,12 +84,12 @@ public class Counter : Table, IPlayerInteractable
         waitingCustomerQueue.Enqueue(customer);
         // 주문처리 순서할당
         customer.orderTurn = count; 
-        return watingLineTr.position + (watingLineTr.forward * waitingLineSpacing * count);
+        return waitingLineTr.position + (waitingLineTr.forward * waitingLineSpacing * count);
     }
     // 줄당김 (카운터 -> 카운터) 
     public Vector3 GetWatingLine(int order)
     {
-        return watingLineTr.position + (watingLineTr.forward * waitingLineSpacing * (order));
+        return waitingLineTr.position + (waitingLineTr.forward * waitingLineSpacing * (order));
     }   
     // 돈 지불
     public void PayMoney(int count)
@@ -83,9 +104,10 @@ public class Counter : Table, IPlayerInteractable
         isInPlayer = true;
        
         // 현재 대기중인 고객이 없을 경우
-        if (waitingCustomerQueue.Count == 0)
+        if (waitingCustomerQueue.Count == 0 || firstOrderCustomer == null)
             return;
 
+        // 주문 처리
         ProcessOrder();
     }
     public void ExitPlayer()
@@ -99,9 +121,10 @@ public class Counter : Table, IPlayerInteractable
     {
         // 포장용지 스폰
         PaperBag paperBag = paperBagSpawner.Spawn() as PaperBag;
-        ItemStack targetStack = waitingCustomerQueue.Peek().ItemController.ItemStack;
+        ItemStack targetStack = firstOrderCustomer.ItemController.ItemStack;
+        waitingCustomerQueue.Dequeue();
 
-        while(targetStack.CurStackCount > 0)
+        while (targetStack.CurStackCount > 0)
         {
             Item getItem = targetStack.PopItem();
             // 포물선 효과 적용
@@ -112,10 +135,11 @@ public class Counter : Table, IPlayerInteractable
 
         // 주문완료 처리
         // 포장용지 전달
-        waitingCustomerQueue.Dequeue().SendItem(paperBag);
-
+        firstOrderCustomer.SendItem(paperBag);
+        // 초기화
+        firstOrderCustomer = null;
         // 고객이 떠날때까지 딜레이
-        yield return new WaitForSeconds(1.5f);
+        yield return new WaitForSeconds(1f);
         OnProcessedOrder?.Invoke();
     }
     private IEnumerator BazierCurve(Transform targetTransform, Vector3 destination)

@@ -21,12 +21,10 @@ public class SuccessOrder : CustomerState
         // 애니메이터 업데이트
         owner.Anim.SetBool(owner.ParamID_IsMoving, true);
     }
-
     public override void Exit()
     {
         checkDestinationRoutine = null;
     }
-
     private void Arrived()
     {
         owner.Agent.isStopped = true;
@@ -34,7 +32,6 @@ public class SuccessOrder : CustomerState
         owner.Anim.SetBool(owner.ParamID_IsMoving, false);
         
     }
-
     private IEnumerator CheckDestinationRoutine()
     {
         while ((owner.destination - owner.transform.position).sqrMagnitude > 0.5f)

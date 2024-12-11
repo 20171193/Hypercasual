@@ -104,7 +104,9 @@ public class Customer : PooledObject
                     // 주문 타입이 매장일 경우 DineIn 상태로 전이
                     else if(ownOrder.orderType == OrderType.DineIn)
                     {
-                        //destination = OrderManager.Instance.dineIn.GetWaitingLine(this);
+                        // 목적지 설정 : 매장 테이블 대기열
+                        destination = OrderManager.Instance.dineIn.GetWaitingLine(this);
+                        fsm.ChangeState("DineIn");
                     }
                 }
                 break;
