@@ -29,14 +29,14 @@ public class PlayerController : MonoBehaviour
 
     // Movement
     private bool isMoving = false;
-    private bool IsMoving 
+    private bool IsMoving
     {
-        set 
+        set
         {
             isMoving = value;
-            // 애니메이터 업데이트
             anim.SetBool(paramID_IsMoving, isMoving);
-        } 
+        }
+        get{ return isMoving; }
     }
 
     [SerializeField]
@@ -74,7 +74,7 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        if (isMoving)
+        if (IsMoving)
             Move();
     }
 
@@ -89,7 +89,6 @@ public class PlayerController : MonoBehaviour
         // 조이스틱 활성화
         joystick.gameObject.SetActive(true);
         joystick.EnableJoystick(startDragPos);
-        IsMoving = true;
     }
     private void OnEndDrag(InputAction.CallbackContext context)
     {
@@ -108,7 +107,13 @@ public class PlayerController : MonoBehaviour
         curDragPos = context.ReadValue<Vector2>();
         // 조이스틱 UI 업데이트
         joystick.UpdateJoystick(curDragPos);
-    }
+
+        // 최소 이동범위 이내 : 정지
+        if (joystick.StickDir == Vector3.zero)
+            IsMoving = false;
+        else
+            IsMoving = true;
+     }
     
     // 조이스틱 이동
     private void Move()
@@ -118,9 +123,5 @@ public class PlayerController : MonoBehaviour
         // 플레이어 회전
         transform.forward = -moveDir;
         controller.Move(transform.forward * moveSpeed * Time.deltaTime);
-        Debug.Log(controller.velocity.magnitude);
-
-        // 애니메이터 세팅
-        anim.SetBool(paramID_IsMoving, true);
     }
 }

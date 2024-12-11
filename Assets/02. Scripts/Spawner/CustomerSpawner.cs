@@ -2,17 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CustomerSpawner : MonoBehaviour
+public class CustomerSpawner : PoolSpawner<Customer>
 {
-    // Start is called before the first frame update
-    void Start()
+    public override PooledObject Spawn()
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        PooledObject inst = base.Spawn();
+        inst.transform.position = transform.position;
+        return inst;
     }
 }

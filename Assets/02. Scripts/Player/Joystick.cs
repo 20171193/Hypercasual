@@ -28,6 +28,9 @@ public class Joystick : MonoBehaviour
     private Camera mainCamera;
 
     [Header("-Specs")]
+    [Tooltip("스틱 이동 임계치")]
+    [SerializeField]
+    private float moveThreshold;
     [Tooltip("스틱 범위제한")]
     [SerializeField, Range(50, 100)]
     private float stickThreshold;
@@ -61,9 +64,14 @@ public class Joystick : MonoBehaviour
 
         // 벡터 도출 (포인터 - 스틱 베이스)
         Vector3 inputVec = pointerRT.position - baseRT.position;
-        
+
+        // 최소 이동범위이내 : 정지
+        if (inputVec.magnitude < moveThreshold)
+            stickDir = Vector3.zero;
         // 스틱 방향 할당
-        stickDir = inputVec.normalized;
+        else
+            stickDir = inputVec.normalized;
+
         // 스틱 UI 업데이트
         stickRT.localPosition = Vector3.ClampMagnitude(inputVec, stickThreshold);
     }

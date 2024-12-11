@@ -5,18 +5,24 @@ using UnityEngine;
 /// <summary>
 /// 습득 아이템
 /// </summary>
-public class Item : PooledObject
+public abstract class Item : PooledObject
 {
-    [Tooltip("아이템 모델 렌더러")]
-    [SerializeField]
-    private Renderer itemRenderer;
-    public Renderer ItemRenderer { get { return itemRenderer; } }
-
-    public Item GetItem()
+    public enum AcquireType
     {
-
-
-        return this;
+        Stack,      // 스택형 아이템
+        Consume     // 소모형 아이템
     }
 
+    [Header("-Specs")]
+    [Tooltip("아이템 모델 렌더러")]
+    [SerializeField]
+    protected Renderer itemRenderer;
+    public Renderer ItemRenderer { get { return itemRenderer; } }
+
+    [Tooltip("아이템 획득 타입")]
+    [SerializeField]
+    protected AcquireType acquireType = AcquireType.Consume;
+    public AcquireType GetAcquireType { get { return acquireType; } }
+
+    public abstract void OnGetItem();
 }

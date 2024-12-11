@@ -10,6 +10,7 @@ public class PoolManager : Singleton<PoolManager>
     /// 인스턴스ID, 풀 인스턴스
     /// </summary>
     private Dictionary<int, ObjectPool> poolDic = new Dictionary<int, ObjectPool>();
+    public Dictionary<int, ObjectPool> PoolDic { get { return poolDic; } }  
 
     public void ExtendPool(PooledObject prefab, int capacity)
     {
