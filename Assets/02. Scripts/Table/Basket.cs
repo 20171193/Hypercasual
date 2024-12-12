@@ -141,6 +141,9 @@ public class Basket : Table, IPlayerInteractable
         {
             // 진행할 요청 할당
             Customer.RequestCroassant curRequest = requests.Peek();
+            // 고객이 할당된 대기열 인덱스 확인
+            int index = curRequest.customer.orderTurn;
+
             // 0.1초 딜레이 이후 전달
             while(basketStack.CurStackCount > 0 && curRequest.count > 0)
             {
@@ -152,11 +155,13 @@ public class Basket : Table, IPlayerInteractable
             // 주문요청이 모두 처리된 경우
             if (curRequest.count == 0)
             {
-                inCustomers[curRequest.customer.orderTurn] = null;
+                inCustomers[index] = null;
                 requests.Dequeue();
                 // 새 고객 생성
                 SpawnCustomer();
             }
+            else
+                yield return null;
         }
 
         croassantPopRoutine = null;
