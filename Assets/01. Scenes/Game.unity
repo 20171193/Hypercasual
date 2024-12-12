@@ -1294,7 +1294,7 @@ MonoBehaviour:
   unLockCost: 30
   payMoneyDelayTime: 0.01
   payMoneySpeed: 10
-  waitingLineSpacing: 1
+  waitingLineSpacing: 1.5
   remainUnLockCost: 0
   isEnableTable: 0
   isInCustomer: 0
@@ -2452,7 +2452,7 @@ MonoBehaviour:
   packagingSpeed: 5
   moneyStack: {fileID: 1685280647}
   waitingLineTr: {fileID: 224819114}
-  waitingLineSpacing: 1
+  waitingLineSpacing: 1.5
   OnProcessedOrder:
     m_PersistentCalls:
       m_Calls: []
@@ -3715,7 +3715,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1091226638}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.5, y: 0, z: -0.22}
+  m_LocalPosition: {x: -2.61, y: 0, z: -0.22}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5325,7 +5325,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1874536480}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.43, y: 0, z: -0.5}
+  m_LocalPosition: {x: 2.54, y: 0, z: -0.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5655,7 +5655,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1994214387}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 2.71}
+  m_LocalPosition: {x: 0, y: 0, z: 2.8}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
