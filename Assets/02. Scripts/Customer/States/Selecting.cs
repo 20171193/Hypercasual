@@ -46,7 +46,7 @@ public class Selecting : CustomerState
         owner.transform.forward = (OrderManager.Instance.basket.transform.position - owner.transform.position).normalized;
 
         // 户 林巩夸没
-        OrderManager.Instance.basket.RequestOrder(owner, owner.OwnOrder.orderCount);
+        OrderManager.Instance.basket.RequestOrder(owner.OwnRequest);
     }
 
     // 格利瘤 犬牢 风凭

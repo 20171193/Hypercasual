@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
 using System;
+using UnityEditor.PackageManager.Requests;
 
 // 빵 저장소의 대기열이 비어있을 경우 고객 스폰 요청
 
@@ -27,10 +28,7 @@ public class Basket : Table, IPlayerInteractable
     [Header("-Ballancing")]
     [Tooltip("주문요청 큐")]
     [SerializeField]
-    private Queue<RequestCroassant> requests;
-    [Tooltip("현재 진행중인 요청")]
-    [SerializeField]
-    private RequestCroassant? curRequest = null;
+    private Queue<Customer.RequestCroassant> requests;
     [Tooltip("대기열 내 고객 (주문 대기열과 1:1)")]
     [SerializeField]
     private Customer[] inCustomers;
@@ -48,7 +46,7 @@ public class Basket : Table, IPlayerInteractable
 
     private void Awake()
     {
-        requests = new Queue<RequestCroassant>();
+        requests = new Queue<Customer.RequestCroassant>();
 
         // 대기열 개수 만큼 배열할당 
         inCustomers = new Customer[waitingLineTransform.Length];
@@ -129,10 +127,8 @@ public class Basket : Table, IPlayerInteractable
             croassantPopRoutine = StartCoroutine(CroassantPopRoutine());
     }
     // 주문 요청 
-    public void RequestOrder(Customer customer, int count)
+    public void RequestOrder(Customer.RequestCroassant request)
     {
-        // 새 요청 생성
-        RequestCroassant request = new RequestCroassant(customer, count);
         // 주문 대기열 큐 할당
         requests.Enqueue(request);
         // 주문 처리
@@ -144,22 +140,22 @@ public class Basket : Table, IPlayerInteractable
         while(requests.Count > 0)
         {
             // 진행할 요청 할당
-            curRequest = requests.Dequeue();
-            Customer customer = curRequest.Value.customer;
-            int count = curRequest.Value.count;
+            Customer.RequestCroassant curRequest = requests.Peek();
             // 0.1초 딜레이 이후 전달
-            while(basketStack.CurStackCount > 0 && count-- > 0)
+            while(basketStack.CurStackCount > 0 && curRequest.count > 0)
             {
-                // 주문요청이 모두 처리된 경우
-                if (count == 0)
-                {
-                    inCustomers[customer.orderTurn] = null;
-                    // 새 고객 생성
-                    SpawnCustomer();
-                }
-
-                customer.SendItem(basketStack.PopItem());
+                curRequest.customer.SendItem(basketStack.PopItem());
+                curRequest.count--;
                 yield return new WaitForSeconds(0.1f);
+            }
+
+            // 주문요청이 모두 처리된 경우
+            if (curRequest.count == 0)
+            {
+                inCustomers[curRequest.customer.orderTurn] = null;
+                requests.Dequeue();
+                // 새 고객 생성
+                SpawnCustomer();
             }
         }
 

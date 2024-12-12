@@ -3,23 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// 주문요청
-/// </summary>
-[Serializable]
-public struct RequestCroassant
-{
-    [Tooltip("주문 고객")]
-    public Customer customer;
-    [Tooltip("요청 개수")]
-    public int count;
-    public RequestCroassant(Customer customer, int count)
-    {
-        this.customer = customer;
-        this.count = count;
-    }
-}
-
 public enum OrderType
 {
     TakeOut,    // 포장

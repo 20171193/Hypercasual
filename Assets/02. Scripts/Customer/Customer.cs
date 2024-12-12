@@ -7,6 +7,23 @@ using UnityEngine.AI;
 
 public class Customer : PooledObject
 {
+    /// <summary>
+    /// 주문요청
+    /// </summary>
+    [Serializable]
+    public class RequestCroassant
+    {
+        [Tooltip("주문 고객")]
+        public Customer customer;
+        [Tooltip("요청 개수")]
+        public int count;
+        public RequestCroassant(Customer customer, int count)
+        {
+            this.customer = customer;
+            this.count = count;
+        }
+    }
+
     [Header("-Components")]
     [SerializeField]
     private NavMeshAgent agent;
@@ -25,6 +42,11 @@ public class Customer : PooledObject
     public StateMachine<Customer> FSM { get { return fsm; } }
 
     [Header("-Ballancing")]
+    [Tooltip("부여받은 주문 목록")]
+    [SerializeField]
+    private RequestCroassant ownRequest;
+    public RequestCroassant OwnRequest {get { return ownRequest; } }    
+    
     public Vector3 destination;
 
     [SerializeField]
@@ -50,6 +72,9 @@ public class Customer : PooledObject
 
     private void Awake()
     {
+        // 주문목록 할당
+        ownRequest = new RequestCroassant(this, -1);
+
         fsm = new StateMachine<Customer>(this);
         fsm.AddState("Pooled", new Pooled(this));
         fsm.AddState("Selecting", new Selecting(this));
@@ -65,6 +90,7 @@ public class Customer : PooledObject
     {
         fsm.Init("Pooled");
         ownOrder = OrderManager.Instance.GetOrder();
+        ownRequest.count = ownOrder.orderCount;
     }
 
     private void OnDisable()
